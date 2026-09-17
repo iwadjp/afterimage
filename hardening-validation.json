@@ -1,0 +1,113 @@
+﻿{
+    "date":  "2026-09-17",
+    "verdict":  "PUBLIC_READY_PATH_CLEAR",
+    "scope":  "Reliability hardening; no export or publication",
+    "logicTests":  {
+                       "passed":  35,
+                       "failed":  0
+                   },
+    "privilegedLive":  {
+                           "privileged":  true,
+                           "cases":  [
+                                         {
+                                             "name":  "public-demo-final-diff-clean",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "public-demo-final-status-clean",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "public-demo-transient",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "public-demo-modify-restore",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "public-demo-rename-back",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "public-demo-readable",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "A-file-rename",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "B-parent-rename",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "C-outside-to-inside",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "D-inside-to-outside",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "E-parent-scope-moves",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "F-rename-delete",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "current-path-outside-redacted",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "absolute-fixture-path-not-output",
+                                             "pass":  true
+                                         },
+                                         {
+                                             "name":  "negative-retention-gap",
+                                             "pass":  true
+                                         }
+                                     ],
+                           "allPass":  true,
+                           "demoExit":  0,
+                           "demoStatus":  [
+                                              "status  : COMPLETE",
+                                              "reason  : retained-snapshot-read-complete",
+                                              "scan    : records=12576385 reads=1296 elapsedMs=14634 retainedIntervalRead=True",
+                                              "events  : observedInScope=16 files=3 unresolvedScope=0 outside=0 gitFiltered=0"
+                                          ],
+                           "boundariesExit":  0,
+                           "boundariesStatus":  [
+                                                    "status  : COMPLETE",
+                                                    "reason  : retained-snapshot-read-complete",
+                                                    "scan    : records=12576445 reads=1296 elapsedMs=6357 retainedIntervalRead=True",
+                                                    "events  : observedInScope=38 files=9 unresolvedScope=0 outside=19 gitFiltered=0"
+                                                ],
+                           "negativeExit":  2,
+                           "negativeStatus":  [
+                                                  "status  : INCONCLUSIVE",
+                                                  "reason  : requested-start-before-oldest-observable-record",
+                                                  "scan    : records=12576448 reads=1296 elapsedMs=6302 retainedIntervalRead=True",
+                                                  "events  : observedInScope=0 files=0 unresolvedScope=0 outside=0 gitFiltered=0"
+                                              ]
+                       },
+    "finalCliChecks":  {
+                           "unprivilegedDemoStatus":  "PARTIAL",
+                           "unprivilegedDemoExit":  3,
+                           "unprivilegedUnresolvedRecords":  16,
+                           "missingScopeStatus":  "UNAVAILABLE",
+                           "missingScopeExit":  4
+                       },
+    "evidenceCaveat":  "Live E2E preceded the final drive-root normalization guard; final logic suite covers that guard. No incident operations were repeated.",
+    "sha256":  {
+                   "afterimage.cs":  "568677E8F5E787DA3435E59761635CE9E182BF6430A220555DB7C8CEE22E63B7",
+                   "query.cs":  "33A27B2C992FD69D28C2C0E0E240919902DB3EBFC7E18E3C6DA2AE4491679063",
+                   "query.tests.cs":  "5D20D021E58222A1BBF43875D8E89A941A48FB6916A29AFAD3C8FDF1AF4EDDBB",
+                   "build.ps1":  "1361B34C398F3CE9C67AD64FD956C8F7C4B790AD9AEBED2F8DC53C60751C19A0",
+                   "test.ps1":  "8B966E0C160EA54EAEC2370F6A5CEB3FA3E4A35868981CACF4ECAC5D64FEBEF4",
+                   "live-tests.ps1":  "A13CF9F07A1B2A8B1A61ADFA38F3A9373B2079E6C899B1C31DF78097942B1EBF",
+                   "afterimage.exe":  "FB3D964442C1FC5E2E23225F364F4667EA6CEF86DF9AEAFE4AA900A9DACFFF7C"
+               }
+}

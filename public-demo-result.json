@@ -1,0 +1,87 @@
+﻿{
+    "privileged":  true,
+    "cases":  [
+                  {
+                      "name":  "public-demo-final-diff-clean",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "public-demo-final-status-clean",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "public-demo-transient",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "public-demo-modify-restore",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "public-demo-rename-back",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "public-demo-readable",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "A-file-rename",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "B-parent-rename",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "C-outside-to-inside",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "D-inside-to-outside",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "E-parent-scope-moves",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "F-rename-delete",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "current-path-outside-redacted",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "absolute-fixture-path-not-output",
+                      "pass":  true
+                  },
+                  {
+                      "name":  "negative-retention-gap",
+                      "pass":  true
+                  }
+              ],
+    "allPass":  true,
+    "demoExit":  0,
+    "demoStatus":  [
+                       "status  : COMPLETE",
+                       "reason  : retained-snapshot-read-complete",
+                       "scan    : records=12577073 reads=1296 elapsedMs=16137 retainedIntervalRead=True",
+                       "events  : observedInScope=16 files=3 unresolvedScope=0 outside=0 gitFiltered=0"
+                   ],
+    "boundariesExit":  0,
+    "boundariesStatus":  [
+                             "status  : COMPLETE",
+                             "reason  : retained-snapshot-read-complete",
+                             "scan    : records=12577133 reads=1296 elapsedMs=5994 retainedIntervalRead=True",
+                             "events  : observedInScope=36 files=8 unresolvedScope=0 outside=17 gitFiltered=0"
+                         ],
+    "negativeExit":  2,
+    "negativeStatus":  [
+                           "status  : INCONCLUSIVE",
+                           "reason  : requested-start-before-oldest-observable-record",
+                           "scan    : records=12577136 reads=1296 elapsedMs=6490 retainedIntervalRead=True",
+                           "events  : observedInScope=0 files=0 unresolvedScope=0 outside=0 gitFiltered=0"
+                       ]
+}
