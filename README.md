@@ -160,9 +160,9 @@ timestamps and metadata may be sensitive. Secret-like name masking is a convenie
 output. Public evidence should use synthetic names only.
 
 Historical agent session logs, old E2E folders/output, probe artifacts and local
-session data are internal evidence and must not be exported. Current source/build/test files
-need a separate export allowlist, license approval and clean-room review before any
-public release. Nothing in this directory is an approval to publish.
+session data are internal evidence and must not be exported. The source, build and
+test files in this repository are the reviewed **Public v0.1.0** release; nothing
+outside this repository is covered by that review.
 
 References: [Microsoft change journal records](https://learn.microsoft.com/en-us/windows/win32/fileio/change-journal-records),
 [journal bounds](https://learn.microsoft.com/en-us/windows/win32/api/winioctl/ns-winioctl-usn_journal_data_v0),
