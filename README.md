@@ -168,3 +168,18 @@ References: [Microsoft change journal records](https://learn.microsoft.com/en-us
 [journal bounds](https://learn.microsoft.com/en-us/windows/win32/api/winioctl/ns-winioctl-usn_journal_data_v0),
 [Velociraptor USN analysis](https://docs.velociraptor.app/artifact_references/pages/windows.forensics.usn/),
 [Procmon](https://learn.microsoft.com/en-us/sysinternals/downloads/procmon).
+
+## Related tools
+
+This project is part of a small set of tools for investigating AI-coding and
+debugging problems that Git alone cannot explain.
+
+- [Timewitness](https://github.com/iwadjp/timewitness) — check whether a regression test fails before a fix and passes after it.
+- [wipwho](https://github.com/iwadjp/wipwho) — split mixed uncommitted Claude/Codex changes into request-level patches.
+- [Ember](https://github.com/iwadjp/ember) — recover source retained by a still-running Node.js process.
+- [Worldbisect](https://github.com/iwadjp/worldbisect) — reduce same-commit environment differences to an observed 1-minimal reproducing set.
+- [Afterimage](https://github.com/iwadjp/afterimage) — inspect retained NTFS USN history after an agent run.
+
+[Overview and articles](https://blog2020.iwadjp.com/2026/09/18/ai-coding-debugging-tools-portfolio/)
+
+**Article:** [Git diffはclean。でもagent run中のfile操作は消えていないかもしれない。AfterimageでNTFS履歴を調べる](https://blog2020.iwadjp.com/2026/09/18/afterimage-investigate-ntfs-usn-journal-after-agent-run/)
