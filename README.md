@@ -22,7 +22,7 @@ record source, not a replacement for Procmon, Sysmon, or forensic parsers.
 
 Windows PowerShell 5.1, the .NET Framework C# compiler, a local NTFS volume using
 USN V2 records, and (for historical names) administrator access are required.
-This candidate remains subject to a Human Gate for licensing and publication.
+Public v0.1.0 is a source-only release; build it locally as shown below.
 
 ## Modes
 
