@@ -130,7 +130,7 @@ static class Program {
     static string Mask(string name, bool show) { return (name != null && !show && Secretish.IsMatch(name)) ? "<secret-like name masked>" : name; }
 
     static int Main(string[] args) {
-        try { return Run(args); } catch (Exception) { Console.Error.WriteLine("status  : INCONCLUSIVE\nreason  : invalid-input-or-query-error (no completeness claim)"); return 2; } finally { if (J != null) J.Dispose(); }
+        try { return Run(args); } catch (Exception e) { Console.Error.WriteLine("status  : INCONCLUSIVE\nreason  : invalid-input-or-query-error (no completeness claim)\ndetail  : " + Detail(e)); return 2; } finally { if (J != null) J.Dispose(); }
     }
 
     static int Run(string[] args) {
@@ -157,17 +157,18 @@ static class Program {
             i = 2;
         } else { Usage(); return 1; }
         for (; i < args.Length; i++) {
-            if (args[i] == "--prefix") prefix = args[++i];
-            else if (args[i] == "--out") outFile = args[++i];
+            if (args[i] == "--prefix") prefix = Value(args, ++i);
+            else if (args[i] == "--out") outFile = Value(args, ++i);
             else if (args[i] == "--include-git") includeGit = true;
             else if (args[i] == "--show-secret-names") showSecret = true;
-            else if (args[i] == "--limit") limit = int.Parse(args[++i]);
-            else throw new Exception("unknown argument");
+            else if (args[i] == "--limit") { if (!int.TryParse(Value(args, ++i), out limit)) throw new Exception("--limit must be a positive integer"); }
+            else throw new Exception("unknown argument: " + args[i]);
         }
         if (prefix == null) throw new Exception("--prefix is required (output never includes paths outside it)");
         prefix = NormalizePrefix(prefix);
 
-        if (start > end || limit < 1) throw new Exception("invalid range or limit");
+        if (limit < 1) throw new Exception("--limit must be a positive integer");
+        if (start > end) throw new Exception("start " + start.ToString("o") + " is after end " + end.ToString("o") + " (UTC)");
         try { J = Journal.Open(prefix); }
         catch (Exception e) { Console.WriteLine("status  : UNAVAILABLE\nreason  : " + e.Message); return 4; }
         var sw = Stopwatch.StartNew();
@@ -227,6 +228,8 @@ static class Program {
         if (outFile != null) File.WriteAllText(outFile, o.ToString()); else Console.Write(o.ToString());
         return result.ExitCode;
     }
+    static string Value(string[] a, int k) { if (k >= a.Length || a[k].StartsWith("--")) throw new Exception("missing value for " + a[k - 1]); return a[k]; }
+    static string Detail(Exception e) { return e is FormatException ? "not a valid timestamp (use ISO 8601, e.g. 2026-09-17T10:00:00Z)" : e.Message; }
     internal static string NormalizePrefix(string p) { p = Path.GetFullPath(p); return p.Length > Path.GetPathRoot(p).Length ? p.TrimEnd('\\') : p; }
     static string Relative(string p, string prefix) { return p.Length > prefix.Length ? p.Substring(prefix.TrimEnd('\\').Length + 1) : "."; }
     static string MaskPath(string p, bool show) { var parts = p.Split('\\'); for (int k = 0; k < parts.Length; k++) parts[k] = Mask(parts[k], show); return string.Join("\\", parts); }
