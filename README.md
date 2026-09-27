@@ -18,11 +18,28 @@ created, bytes were changed and restored, or names were moved. Afterimage can in
 retained NTFS history after the fact. It is a workflow around an existing Windows
 record source, not a replacement for Procmon, Sysmon, or forensic parsers.
 
+## Download and run
+
+No build is needed. Download `afterimage-v0.1.0-windows.zip` from the
+[v0.1.0 release](https://github.com/iwadjp/afterimage/releases/tag/v0.1.0),
+check its SHA-256 against the release notes, and extract it. It contains
+`afterimage.exe`, `LICENSE` and this README. The executable uses the .NET Framework
+4.x runtime that ships with Windows 10/11 and needs no installation.
+
+The executable is not code-signed. Windows may mark a downloaded copy as coming from
+the internet; after verifying the hash, `Unblock-File .\afterimage.exe` clears that
+mark. Run it from a terminal, not by double-clicking:
+
+```powershell
+.\afterimage.exe --help
+.\afterimage.exe since 2026-09-17T10:00:00Z --prefix D:\synthetic-project
+```
+
 ## Build and query
 
-Windows PowerShell 5.1, the .NET Framework C# compiler, a local NTFS volume using
-USN V2 records, and (for historical names) administrator access are required.
-Public v0.1.0 is a source-only release; build it locally as shown below.
+A local NTFS volume using USN V2 records and, for historical names, administrator
+access are required. Building from source needs Windows PowerShell 5.1 and the
+.NET Framework C# compiler; `.\build.ps1` produces `afterimage.exe`.
 
 ## Modes
 
