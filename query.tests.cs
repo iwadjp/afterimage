@@ -76,6 +76,11 @@ static class QueryTests {
             Check(Program.NormalizePrefix(@"X:\") == @"X:\", "drive-root-not-drive-relative");
             Check(Program.NormalizePrefix(@"X:\fixture\scope\") == @"X:\fixture\scope", "ordinary-prefix-normalization");
             Check(HistoryPaths.InScope(@"X:\fixture\file", @"X:\"), "drive-root-scope-boundary");
+            var gap = Program.NextAction(new List<string> { "requested-start-before-oldest-observable-record" }, "2026-01-01T00:00:00.0000000Z");
+            Check(gap.Count == 1 && gap[0].Contains("2026-01-01T00:00:00.0000000Z") && gap[0].Contains("no longer in the journal"), "next-action-retention-gap");
+            var unpriv = Program.NextAction(new List<string> { "insufficient-privilege-for-historical-names", "historical-scope-unresolved:5" }, "UNKNOWN");
+            Check(unpriv.Count == 1 && unpriv[0].Contains("Administrator") && unpriv[0].Contains("unresolvedScope"), "next-action-unprivileged");
+            Check(Program.NextAction(new List<string>(), "UNKNOWN").Count == 0, "next-action-none-when-complete");
             Console.WriteLine("ALL_PASS=True tests=" + passed);
             return 0;
         } catch (Exception e) { Console.WriteLine(e.Message); return 1; }

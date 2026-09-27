@@ -223,10 +223,20 @@ static class Program {
         o.AppendLine("paths   : pathCandidate combines journal name/parent links and current anchors; it is not a certified historical full path. Current resolution is separate.");
         o.AppendLine("note    : labels are timing/name heuristics, NOT agent authorship or writer-PID proof. USN does not recover file contents.");
         if (matched == 0) o.AppendLine(result.Status == "COMPLETE" ? "result  : zero matching retained records (not proof of no activity)" : "result  : no matching records observed; query incomplete, activity UNKNOWN");
+        foreach (string action in NextAction(result.Issues, result.Oldest == 0 ? "UNKNOWN" : DateTime.FromFileTimeUtc(result.Oldest).ToString("o"))) o.AppendLine("next    : " + action);
         o.Append(body);
         if (shown > limit) o.AppendLine("display : truncated " + (shown - limit) + " file groups; query status does not imply all groups were displayed (use --limit)");
         if (outFile != null) File.WriteAllText(outFile, o.ToString()); else Console.Write(o.ToString());
         return result.ExitCode;
+    }
+    // Tells the user whether a non-COMPLETE status is fixable by them or a limit of the retained journal.
+    internal static List<string> NextAction(List<string> issues, string oldest) {
+        var next = new List<string>();
+        if (issues.Contains("requested-start-before-oldest-observable-record"))
+            next.Add("the window starts before the oldest retained record (" + oldest + "); activity before that is no longer in the journal, and rerunning cannot recover it. Use a start after it for a checkable window.");
+        if (issues.Contains("insufficient-privilege-for-historical-names"))
+            next.Add("historical names need volume access; rerun from an elevated (Administrator) PowerShell to resolve the unresolvedScope records against --prefix.");
+        return next;
     }
     static string Value(string[] a, int k) { if (k >= a.Length || a[k].StartsWith("--")) throw new Exception("missing value for " + a[k - 1]); return a[k]; }
     static string Detail(Exception e) { return e is FormatException ? "not a valid timestamp (use ISO 8601, e.g. 2026-09-17T10:00:00Z)" : e.Message; }
