@@ -20,8 +20,8 @@ record source, not a replacement for Procmon, Sysmon, or forensic parsers.
 
 ## Download and run
 
-No build is needed. Download `afterimage-v0.1.0-windows.zip` from the
-[v0.1.0 release](https://github.com/iwadjp/afterimage/releases/tag/v0.1.0),
+No build is needed. Download `afterimage-v0.1.1-windows.zip` from the
+[v0.1.1 release](https://github.com/iwadjp/afterimage/releases/tag/v0.1.1),
 check its SHA-256 against the release notes, and extract it. It contains
 `afterimage.exe`, `LICENSE` and this README. The executable uses the .NET Framework
 4.x runtime that ships with Windows 10/11 and needs no installation.
@@ -178,7 +178,7 @@ output. Public evidence should use synthetic names only.
 
 Historical agent session logs, old E2E folders/output, probe artifacts and local
 session data are internal evidence and must not be exported. The source, build and
-test files in this repository are the reviewed **Public v0.1.0** release; nothing
+test files in this repository are the reviewed **Public v0.1.1** release; nothing
 outside this repository is covered by that review.
 
 References: [Microsoft change journal records](https://learn.microsoft.com/en-us/windows/win32/fileio/change-journal-records),
