@@ -21,3 +21,4 @@ foreach ($c in $cases) {
     if ($LASTEXITCODE -ne 2 -or ($err -join "`n") -notmatch 'INCONCLUSIVE' -or ($err -join "`n") -notmatch "detail  : .*$($c[1])") { throw "CLI input error case failed ($($c[0] -join ' ')): $err" }
 }
 Write-Output ('PASS cli-input-error-detail (' + $cases.Count + ')')
+& (Join-Path $PSScriptRoot 'agent-window-cli.tests.ps1') -WorkRoot (Join-Path $work 'agent-window-cli')

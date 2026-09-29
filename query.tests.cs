@@ -24,8 +24,67 @@ static class QueryTests {
     static QueryResult Run(FakeJournal f) { return QueryEngine.Run(f, 20, 100, 1000); }
     static string Current(ulong id) { return id == 1 ? @"X:\fixture" : id == 2 ? @"X:\fixture\scope" : id == 3 ? @"X:\fixture\outside" : null; }
     static bool Inside(PathEvidence p) { return HistoryPaths.InScope(p.Value, @"X:\fixture\scope"); }
+    static readonly DateTime WindowBase = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    static FakeJournal WindowJournal(bool rotated) {
+        var records = new List<Rec>();
+        if (!rotated) records.Add(R(1, WindowBase.ToFileTimeUtc(), 90, 2, "oldest.txt", 0x100, false));
+        records.Add(R(3, WindowBase.AddSeconds(10).ToFileTimeUtc(), 91, 2, "tie-a.txt", 0x100, false));
+        records.Add(R(4, WindowBase.AddSeconds(10).ToFileTimeUtc(), 92, 2, "tie-b.txt", 0x100, false));
+        records.Add(R(5, WindowBase.AddSeconds(20).ToFileTimeUtc(), 93, 2, "newest.txt", 0x100, false));
+        var f = Good(records.ToArray());
+        f.Initial.First = rotated ? 3 : 1;
+        f.Initial.Taken = WindowBase.AddSeconds(30).ToFileTimeUtc();
+        return f;
+    }
+    static string WindowLog(string first, string last) {
+        return "{\"timestamp\":\"" + first + "\"}\n{\"timestamp\":\"" + last + "\"}";
+    }
+    static QueryResult AgentQuery(string log, bool rotated, out DateTime start, out DateTime end) {
+        Program.AgentWindow(log, out start, out end);
+        return QueryEngine.Run(WindowJournal(rotated), start.ToFileTimeUtc(), end.ToFileTimeUtc(), 1000);
+    }
+    static void AgentWindowChecks() {
+        // Truth set: retained events at T, T+10s (two records), T+20s;
+        // snapshot at T+30s. Agent log windows include the existing +/-5s padding.
+        DateTime start, end;
+        string last = "2026-01-01T00:00:15Z";
+        var cases = new[] {
+            new[] { "offset-retention-gap", "2026-01-01T09:00:04.999+09:00", last, "-1", "20000", "4", "PARTIAL" },
+            new[] { "exact-oldest-boundary", "2026-01-01T09:00:05+09:00", last, "0", "20000", "4", "COMPLETE" },
+            new[] { "oldest-minus-1ms-z", "2026-01-01T00:00:04.999Z", last, "-1", "20000", "4", "PARTIAL" },
+            new[] { "oldest-plus-1ms", "2026-01-01T09:00:05.001+09:00", last, "1", "20000", "3", "COMPLETE" },
+            new[] { "same-instant-midnight-offset", "2025-12-31T19:00:04.999-05:00", last, "-1", "20000", "4", "PARTIAL" },
+            new[] { "offset-end-after-snapshot", "2026-01-01T00:00:05Z", "2026-01-01T09:00:26+09:00", "0", "31000", "4", "PARTIAL" },
+        };
+        foreach (var c in cases) {
+            var r = AgentQuery(WindowLog(c[1], c[2]), false, out start, out end);
+            var actions = Program.NextAction(r.Issues, WindowBase.ToString("o"));
+            bool gap = c[3] == "-1";
+            Check(start == WindowBase.AddMilliseconds(int.Parse(c[3])) && end == WindowBase.AddMilliseconds(int.Parse(c[4])) &&
+                r.Events.Count == int.Parse(c[5]) && r.Status == c[6] &&
+                r.ExitCode == (c[6] == "COMPLETE" ? 0 : 3) &&
+                r.Issues.Contains("requested-start-before-oldest-observable-record") == gap &&
+                (gap ? actions.Count == 1 && actions[0].Contains("no longer in the journal") : actions.Count == 0),
+                c[0] + " actual=" + r.Status + " count=" + r.Events.Count + " start=" + start.ToString("o"));
+        }
+        var ties = QueryEngine.Run(WindowJournal(false), WindowBase.AddSeconds(10).ToFileTimeUtc(), WindowBase.AddSeconds(10).ToFileTimeUtc(), 1000);
+        Check(ties.Status == "COMPLETE" && ties.Events.Count == 2 && ties.Events[0].Usn == 3 && ties.Events[1].Usn == 4,
+            "identical-timestamps-inclusive-boundaries");
+        var log = WindowLog("2026-01-01T09:00:05+09:00", last);
+        var before = AgentQuery(log, false, out start, out end);
+        var repeat = AgentQuery(log, true, out start, out end);
+        Check(before.Status == "COMPLETE" && repeat.Status == "PARTIAL" && repeat.Events.Count == 3 &&
+            repeat.Issues.Contains("requested-start-before-oldest-observable-record"), "repeat-after-retention-rotation");
+        bool rejected = false;
+        try { Program.AgentWindow(WindowLog("not-a-time", last), out start, out end); }
+        catch (FormatException) { rejected = true; }
+        Check(rejected, "invalid-timestamp-must-not-silently-shrink-window");
+    }
     public static int Main(string[] args) {
         try {
+            if (args.Length > 0 && args[0] == "agent-window") {
+                AgentWindowChecks(); Console.WriteLine("ALL_PASS=True tests=" + passed); return 0;
+            }
             var r = Run(Good(Old())); Check(r.Status == "COMPLETE" && r.ExitCode == 0 && r.Events.Count == 0, "zero-events-complete");
             var f = new FakeJournal(); f.Batches.Enqueue(new Batch { Error = "read:win32-1117" }); r = Run(f);
             Check(r.Status == "INCONCLUSIVE" && r.ExitCode != 0 && r.Events.Count == 0, "failure-before-usable-batch-not-zero-success");
@@ -81,6 +140,7 @@ static class QueryTests {
             var unpriv = Program.NextAction(new List<string> { "insufficient-privilege-for-historical-names", "historical-scope-unresolved:5" }, "UNKNOWN");
             Check(unpriv.Count == 1 && unpriv[0].Contains("Administrator") && unpriv[0].Contains("unresolvedScope"), "next-action-unprivileged");
             Check(Program.NextAction(new List<string>(), "UNKNOWN").Count == 0, "next-action-none-when-complete");
+            AgentWindowChecks();
             Console.WriteLine("ALL_PASS=True tests=" + passed);
             return 0;
         } catch (Exception e) { Console.WriteLine(e.Message); return 1; }

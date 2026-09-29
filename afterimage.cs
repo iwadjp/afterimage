@@ -147,11 +147,7 @@ static class Program {
         } else if (args[0] == "agent" && args.Length >= 2) {
             // Claude Code / Codex JSONL session log: window = first..last timestamp, scope = recorded cwd
             using (var fs = new FileStream(args[1], FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete)) using (var sr = new StreamReader(fs)) logText = sr.ReadToEnd();
-            var ts = Regex.Matches(logText, "\"timestamp\":\"([0-9T:.\\-]+Z)\"");
-            if (ts.Count == 0) throw new Exception("no timestamps in log");
-            DateTime mn = DateTime.MaxValue, mx = DateTime.MinValue;
-            foreach (Match m in ts) { var d = DateTime.Parse(m.Groups[1].Value, culture, DateTimeStyles.AdjustToUniversal); if (d < mn) mn = d; if (d > mx) mx = d; }
-            start = mn.AddSeconds(-5); end = mx.AddSeconds(5);
+            AgentWindow(logText, out start, out end);
             var cwd = Regex.Match(logText, "\"cwd\":\"((?:[^\"\\\\]|\\\\.)*)\"");
             if (cwd.Success) prefix = Regex.Unescape(cwd.Groups[1].Value);
             i = 2;
@@ -228,6 +224,18 @@ static class Program {
         if (shown > limit) o.AppendLine("display : truncated " + (shown - limit) + " file groups; query status does not imply all groups were displayed (use --limit)");
         if (outFile != null) File.WriteAllText(outFile, o.ToString()); else Console.Write(o.ToString());
         return result.ExitCode;
+    }
+    internal static void AgentWindow(string logText, out DateTime start, out DateTime end) {
+        // Collect every timestamp before parsing instants. Filtering for Z first
+        // silently drops offset timestamps and can hide a retention gap.
+        var ts = Regex.Matches(logText, "\"timestamp\"\\s*:\\s*\"([^\"]*)\"");
+        if (ts.Count == 0) throw new Exception("no timestamps in log");
+        DateTime mn = DateTime.MaxValue, mx = DateTime.MinValue;
+        foreach (Match m in ts) {
+            var d = DateTime.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
+            if (d < mn) mn = d; if (d > mx) mx = d;
+        }
+        start = mn.AddSeconds(-5); end = mx.AddSeconds(5);
     }
     // Tells the user whether a non-COMPLETE status is fixable by them or a limit of the retained journal.
     internal static List<string> NextAction(List<string> issues, string oldest) {
